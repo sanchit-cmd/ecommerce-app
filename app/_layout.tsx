@@ -1,37 +1,98 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { useSegments, useRouter } from 'expo-router';
+import { AuthProvider, useAuth } from '../context/AuthContext';
+import { CartProvider } from '../context/CartContext';
+import { OrderProvider } from '../context/OrderContext';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+// Separate component for protected route logic
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+	const segments = useSegments();
+	const router = useRouter();
+	const { user, loading } = useAuth();
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+	useEffect(() => {
+		if (!loading) {
+			const inAuthGroup = segments[0] === 'auth';
+			
+			if (!user && !inAuthGroup) {
+				// Redirect to login if user is not authenticated and not in auth group
+				router.replace('/auth/login');
+			} else if (user && inAuthGroup) {
+				// Redirect to home if user is authenticated and in auth group
+				router.replace('/');
+			}
+		}
+	}, [user, loading, segments]);
 
+	return <>{children}</>;
+}
+
+// Navigation component that uses authentication
+function RootLayoutNav() {
+	const router = useRouter();
+	const { user, loading } = useAuth();
+
+	useEffect(() => {
+		if (!loading && !user) {
+			router.replace('/auth/login');
+		} else if (!loading && user) {
+			router.replace('/(tabs)');
+		}
+	}, [loading, user]);
+
+	return (
+		<Stack>
+			<Stack.Screen name='(tabs)' options={{ headerShown: false }} />
+			<Stack.Screen name='auth' options={{ headerShown: false }} />
+			<Stack.Screen
+				name='product/[id]'
+				options={{
+					headerShown: true,
+					title: 'Product Details',
+					headerBackTitle: 'Back',
+				}}
+			/>
+			<Stack.Screen
+				name='category/[id]'
+				options={{
+					headerShown: true,
+					title: 'Category',
+					headerBackTitle: 'Back',
+				}}
+			/>
+			<Stack.Screen
+				name='checkout'
+				options={{
+					headerShown: true,
+					title: 'Checkout',
+					headerBackTitle: 'Cart',
+					presentation: 'card',
+				}}
+			/>
+			<Stack.Screen
+				name='orders'
+				options={{
+					headerShown: true,
+					title: 'My Orders',
+					headerBackTitle: 'Back',
+				}}
+			/>
+		</Stack>
+	);
+}
+
+// Root layout that provides context
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
-  );
+	return (
+		<AuthProvider>
+			<CartProvider>
+				<OrderProvider>
+					<ProtectedRoute>
+						<RootLayoutNav />
+					</ProtectedRoute>
+				</OrderProvider>
+			</CartProvider>
+		</AuthProvider>
+	);
 }
