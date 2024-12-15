@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	View,
 	Text,
@@ -6,22 +6,80 @@ import {
 	FlatList,
 	Image,
 	TouchableOpacity,
+	ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
-import { useOrders } from '../context/OrderContext';
 import { useAuth } from '../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/Colors';
+import { API_URL } from '../constants/Api';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface OrderItem {
+	product: {
+		_id: string;
+		name: string;
+		price: number;
+		image: string;
+		discountPrice?: number;
+	};
+	quantity: number;
+}
+
+interface Order {
+	_id: string;
+	products: OrderItem[];
+	totalPrice: number;
+	status: string;
+	createdAt: string;
+	updatedAt: string;
+}
 
 const OrdersScreen = () => {
-	const { orders } = useOrders();
 	const { user } = useAuth();
+	const [orders, setOrders] = useState<Order[]>([]);
+	const [loading, setLoading] = useState(true);
 
-	// Redirect if not logged in
-	React.useEffect(() => {
+	const getAuthHeader = async () => {
+		const token = await AsyncStorage.getItem('token');
+		if (!token) {
+			router.push('/auth/login');
+			return null;
+		}
+		return {
+			headers: {
+				Authorization: `Bearer ${token}`,
+				'Content-Type': 'application/json',
+				Accept: 'application/json',
+			},
+		};
+	};
+
+	const fetchOrders = async () => {
+		try {
+			setLoading(true);
+			const authHeader = await getAuthHeader();
+			if (!authHeader) return;
+
+			const response = await axios.get(`${API_URL}/orders`, authHeader);
+			setOrders(response.data);
+		} catch (error: any) {
+			console.error('Error fetching orders:', error);
+			if (error.response) {
+				console.error('Error response:', error.response.data);
+			}
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
 		if (!user) {
 			router.replace('/auth/login');
+			return;
 		}
+		fetchOrders();
 	}, [user]);
 
 	const formatDate = (date: string) => {
@@ -47,6 +105,14 @@ const OrdersScreen = () => {
 		}
 	};
 
+	if (loading) {
+		return (
+			<View style={styles.loadingContainer}>
+				<ActivityIndicator size="large" color={Colors.light.tint} />
+			</View>
+		);
+	}
+
 	if (!orders || orders.length === 0) {
 		return (
 			<View style={styles.emptyContainer}>
@@ -70,61 +136,66 @@ const OrdersScreen = () => {
 		<View style={styles.container}>
 			<FlatList
 				data={orders}
-				keyExtractor={item => item.id}
+				keyExtractor={item => item._id}
 				renderItem={({ item }) => (
-					<View style={styles.orderCard}>
-						<View style={styles.orderHeader}>
-							<Text style={styles.orderId}>Order #{item.id}</Text>
-							<View
-								style={[
-									styles.statusBadge,
-									{
-										backgroundColor: getStatusColor(
-											item.status
-										),
-									},
-								]}
-							>
-								<Text style={styles.statusText}>
-									{item.status}
+					<TouchableOpacity
+						onPress={() => router.push(`/order/${item._id}`)}
+						activeOpacity={0.7}
+					>
+						<View style={styles.orderCard}>
+							<View style={styles.orderHeader}>
+								<Text style={styles.orderId}>Order #{item._id}</Text>
+								<View
+									style={[
+										styles.statusBadge,
+										{
+											backgroundColor: getStatusColor(
+												item.status
+											),
+										},
+									]}
+								>
+									<Text style={styles.statusText}>
+										{item.status}
+									</Text>
+								</View>
+							</View>
+
+							<Text style={styles.date}>{formatDate(item.createdAt)}</Text>
+
+							<View style={styles.itemsList}>
+								{item.products.map(orderItem => (
+									<View
+										key={orderItem.product._id}
+										style={styles.orderItem}
+									>
+										<Image
+											source={{ uri: orderItem.product.image }}
+											style={styles.itemImage}
+										/>
+										<View style={styles.itemDetails}>
+											<Text style={styles.itemName}>
+												{orderItem.product.name}
+											</Text>
+											<Text style={styles.itemQuantity}>
+												Qty: {orderItem.quantity}
+											</Text>
+											<Text style={styles.itemPrice}>
+												₹{Math.floor(orderItem.product.discountPrice || orderItem.product.price)}
+											</Text>
+										</View>
+									</View>
+								))}
+							</View>
+
+							<View style={styles.orderFooter}>
+								<Text style={styles.totalLabel}>Total:</Text>
+								<Text style={styles.totalAmount}>
+									₹{Math.floor(item.totalPrice)}
 								</Text>
 							</View>
 						</View>
-
-						<Text style={styles.date}>{formatDate(item.date)}</Text>
-
-						<View style={styles.itemsList}>
-							{item.items.map(orderItem => (
-								<View
-									key={orderItem.id}
-									style={styles.orderItem}
-								>
-									<Image
-										source={{ uri: orderItem.image }}
-										style={styles.itemImage}
-									/>
-									<View style={styles.itemDetails}>
-										<Text style={styles.itemName}>
-											{orderItem.name}
-										</Text>
-										<Text style={styles.itemQuantity}>
-											Qty: {orderItem.quantity}
-										</Text>
-										<Text style={styles.itemPrice}>
-											${orderItem.price.toFixed(2)}
-										</Text>
-									</View>
-								</View>
-							))}
-						</View>
-
-						<View style={styles.orderFooter}>
-							<Text style={styles.totalLabel}>Total:</Text>
-							<Text style={styles.totalAmount}>
-								${item.total.toFixed(2)}
-							</Text>
-						</View>
-					</View>
+					</TouchableOpacity>
 				)}
 				contentContainerStyle={styles.listContent}
 			/>
@@ -135,6 +206,12 @@ const OrdersScreen = () => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		backgroundColor: Colors.light.background,
+	},
+	loadingContainer: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
 		backgroundColor: Colors.light.background,
 	},
 	listContent: {

@@ -272,23 +272,36 @@ export default function HomeScreen() {
 				</View>
 
 				{/* Categories */}
-				<View style={styles.categoriesSection}>
-					<View style={styles.sectionHeader}>
-						<Text style={styles.sectionTitle}>Categories</Text>
-					</View>
-					{categoriesLoading ? (
-						<ActivityIndicator size="small" color={Colors.light.tint} style={styles.loader} />
-					) : (
-						<FlatList
-							data={categories}
-							renderItem={renderCategory}
+				{categories.length > 0 && (
+					<>
+						<View style={styles.sectionHeader}>
+							<Text style={styles.sectionTitle}>Categories</Text>
+							<TouchableOpacity onPress={() => router.push('/categories')}>
+								<Text style={styles.seeAll}>See All</Text>
+							</TouchableOpacity>
+						</View>
+
+						<ScrollView
 							horizontal
 							showsHorizontalScrollIndicator={false}
-							keyExtractor={item => item._id}
-							contentContainerStyle={styles.categoriesList}
-						/>
-					)}
-				</View>
+							contentContainerStyle={styles.categoriesContainer}
+						>
+							{categories.map(category => (
+								<TouchableOpacity
+									key={category._id}
+									style={styles.categoryCard}
+									onPress={() => router.push(`/category/${category._id}`)}
+								>
+									<Image
+										source={{ uri: category.image }}
+										style={styles.categoryImage}
+									/>
+									<Text style={styles.categoryName}>{category.name}</Text>
+								</TouchableOpacity>
+							))}
+						</ScrollView>
+					</>
+				)}
 
 				{/* Featured Products */}
 				<View style={styles.productsSection}>
@@ -496,5 +509,13 @@ const styles = StyleSheet.create({
 		height: 8,
 		borderRadius: 4,
 		marginHorizontal: 4,
+	},
+	categoriesContainer: {
+		paddingHorizontal: 12,
+	},
+	categoryCard: {
+		alignItems: 'center',
+		marginHorizontal: 4,
+		width: 80,
 	},
 });

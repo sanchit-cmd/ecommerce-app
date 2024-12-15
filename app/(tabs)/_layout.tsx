@@ -4,8 +4,12 @@ import { useCart } from '../../context/CartContext';
 import React from 'react';
 import { Colors } from '../../constants/Colors';
 
-export default function _layout() {
-	const { totalItems } = useCart();
+export default function TabsLayout() {
+	const { items } = useCart();
+
+	const getTotalItems = () => {
+		return items.reduce((total, item) => total + item.quantity, 0);
+	};
 
 	return (
 		<Tabs
@@ -13,7 +17,13 @@ export default function _layout() {
 				headerShown: false,
 				tabBarActiveTintColor: Colors.light.tint,
 				tabBarInactiveTintColor: Colors.light.tabIconDefault,
-				tabBarBadgeStyle: { backgroundColor: Colors.light.tint },
+				tabBarBadgeStyle: { 
+					backgroundColor: Colors.light.tint,
+					fontSize: 12,
+					minWidth: 16,
+					minHeight: 16,
+					lineHeight: 16,
+				},
 			}}
 		>
 			<Tabs.Screen
@@ -40,7 +50,7 @@ export default function _layout() {
 							color={color}
 						/>
 					),
-					tabBarBadge: totalItems > 0 ? totalItems : undefined,
+					tabBarBadge: getTotalItems() || undefined,
 				}}
 			/>
 			<Tabs.Screen
