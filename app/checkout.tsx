@@ -1,4 +1,13 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from 'react-native';
+import {
+	View,
+	Text,
+	ScrollView,
+	TouchableOpacity,
+	StyleSheet,
+	Image,
+	ActivityIndicator,
+	Alert,
+} from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -8,6 +17,8 @@ import { API_URL } from '../constants/Api';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import { razorpayService } from '../services/razorpay';
+import RazorpayCheckout from 'react-native-razorpay';
 
 interface Address {
 	_id: string;
@@ -35,7 +46,9 @@ export default function CheckoutScreen() {
 	const { items: cart, clearCart } = useCart();
 	const { user } = useAuth();
 	const [addresses, setAddresses] = useState<Address[]>([]);
-	const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+	const [selectedAddress, setSelectedAddress] = useState<Address | null>(
+		null
+	);
 	const [loading, setLoading] = useState(true);
 
 	const getAuthHeader = async () => {
@@ -59,10 +72,14 @@ export default function CheckoutScreen() {
 			const authHeader = await getAuthHeader();
 			if (!authHeader) return;
 
-			const response = await axios.get(`${API_URL}/addresses`, authHeader);
-			
+			const response = await axios.get(
+				`${API_URL}/addresses`,
+				authHeader
+			);
+
 			if (response.data.success) {
-				const addressData = response.data.addresses || response.data.data || [];
+				const addressData =
+					response.data.addresses || response.data.data || [];
 				setAddresses(Array.isArray(addressData) ? addressData : []);
 				if (addressData.length > 0) {
 					setSelectedAddress(addressData[0]);
@@ -87,14 +104,16 @@ export default function CheckoutScreen() {
 
 	const calculateSubtotal = () => {
 		return cart.reduce((total: number, item: CartItem) => {
-			return total + (item.price * item.quantity);
+			return total + item.price * item.quantity;
 		}, 0);
 	};
 
 	const calculateDiscount = () => {
 		return cart.reduce((total: number, item: CartItem) => {
 			if (item.discountPrice) {
-				return total + ((item.price - item.discountPrice) * item.quantity);
+				return (
+					total + (item.price - item.discountPrice) * item.quantity
+				);
 			}
 			return total;
 		}, 0);
@@ -108,41 +127,92 @@ export default function CheckoutScreen() {
 
 	const handlePlaceOrder = async () => {
 		if (!selectedAddress) {
-			alert('Please select a delivery address');
+			Alert.alert('Error', 'Please select a delivery address');
 			return;
 		}
 
 		try {
-			const authHeader = await getAuthHeader();
-			if (!authHeader) return;
+			const totalAmount = calculateTotal();
+			console.log('Creating order with total amount:', totalAmount);
 
-			const response = await axios.post(
-				`${API_URL}/orders`,
-				{
-					items: cart.map((item: CartItem) => ({
-						product: item._id,
-						quantity: item.quantity
-					})),
-					address: selectedAddress._id,
-					totalAmount: calculateTotal()
-				},
-				authHeader
+			const orderResponse = await razorpayService.createOrder(
+				totalAmount,
+				cart.map(item => ({
+					product: item._id,
+					quantity: item.quantity,
+					price: item.discountPrice || item.price,
+				})),
+				selectedAddress._id
 			);
 
-			if (response.data.success) {
-				clearCart();
-				alert('Order placed successfully!');
-				router.replace('/(tabs)');
-			} else {
-				alert(response.data.message || 'Failed to place order');
+			console.log('Order created:', orderResponse);
+
+			const options = {
+				description: 'Payment for your order',
+				image: require('../assets/images/logo.jpg'),
+				currency: 'INR',
+				key: 'rzp_test_RMmP5kRFvbWB49',
+				amount: orderResponse.amount,
+				name: 'Shopify',
+				order_id: orderResponse.razorpayOrderId,
+				prefill: {
+					email: user?.email || '',
+					contact: selectedAddress.phoneNumber,
+					name: selectedAddress.fullName,
+				},
+				theme: { color: Colors.light.tint },
+			};
+
+			console.log('Opening Razorpay with options:', options);
+
+			try {
+				const data = await RazorpayCheckout.open(options);
+				console.log('Payment successful:', data);
+
+				try {
+					const verificationResponse =
+						await razorpayService.verifyPayment({
+							razorpay_order_id: data.razorpay_order_id,
+							razorpay_payment_id: data.razorpay_payment_id,
+							razorpay_signature: data.razorpay_signature,
+							orderId: orderResponse.orderId,
+						});
+
+					console.log('Payment verified:', verificationResponse);
+
+					if (verificationResponse.message === 'Payment successful') {
+						clearCart();
+						Alert.alert('Success', 'Order placed successfully!', [
+							{
+								text: 'OK',
+								onPress: () => router.replace('/orders'),
+							},
+						]);
+					}
+				} catch (verifyError: any) {
+					console.error(
+						'Payment verification failed:',
+						verifyError.response?.data || verifyError
+					);
+					Alert.alert(
+						'Error',
+						'Payment verification failed. Please contact support.'
+					);
+				}
+			} catch (paymentError: any) {
+				console.error('Payment failed:', paymentError);
+				Alert.alert('Error', 'Payment failed. Please try again.');
 			}
 		} catch (error: any) {
-			console.error('Error placing order:', error);
-			if (error.response) {
-				alert(error.response.data.message || 'Failed to place order');
-			} else {
-				alert('Failed to place order. Please try again.');
-			}
+			console.error(
+				'Error creating order:',
+				error.response?.data || error
+			);
+			Alert.alert(
+				'Error',
+				error.response?.data?.message ||
+					'Failed to create order. Please try again.'
+			);
 		}
 	};
 
@@ -162,25 +232,37 @@ export default function CheckoutScreen() {
 			<View style={styles.section}>
 				<View style={styles.sectionHeader}>
 					<Text style={styles.sectionTitle}>Delivery Address</Text>
-					<TouchableOpacity 
+					<TouchableOpacity
 						style={styles.addAddressButton}
 						onPress={() => router.push('/address')}
-						>
+					>
 						<Text style={styles.addAddressText}>+ Add New</Text>
 					</TouchableOpacity>
 				</View>
-				
+
 				{loading ? (
-					<ActivityIndicator size="small" color={Colors.light.primary} style={styles.loader} />
+					<ActivityIndicator
+						size='small'
+						color={Colors.light.primary}
+						style={styles.loader}
+					/>
 				) : addresses.length === 0 ? (
 					<View style={styles.emptyAddress}>
-						<Ionicons name="location-outline" size={24} color={Colors.light.primary} />
-						<Text style={styles.emptyAddressText}>No addresses found</Text>
-						<Text style={styles.emptyAddressSubtext}>Add an address to continue</Text>
+						<Ionicons
+							name='location-outline'
+							size={24}
+							color={Colors.light.primary}
+						/>
+						<Text style={styles.emptyAddressText}>
+							No addresses found
+						</Text>
+						<Text style={styles.emptyAddressSubtext}>
+							Add an address to continue
+						</Text>
 					</View>
 				) : (
-					<ScrollView 
-						horizontal 
+					<ScrollView
+						horizontal
 						showsHorizontalScrollIndicator={false}
 						contentContainerStyle={styles.addressScrollContainer}
 					>
@@ -189,22 +271,35 @@ export default function CheckoutScreen() {
 								key={address._id}
 								style={[
 									styles.addressCard,
-									selectedAddress?._id === address._id && styles.selectedAddress
+									selectedAddress?._id === address._id &&
+										styles.selectedAddress,
 								]}
 								onPress={() => setSelectedAddress(address)}
 							>
 								{selectedAddress?._id === address._id && (
 									<View style={styles.selectedBadge}>
-										<Ionicons name="checkmark-circle" size={20} color={Colors.light.primary} />
+										<Ionicons
+											name='checkmark-circle'
+											size={20}
+											color={Colors.light.primary}
+										/>
 									</View>
 								)}
-								<Text style={styles.name}>{address.fullName}</Text>
-								<Text style={styles.addressText}>{address.address}</Text>
+								<Text style={styles.name}>
+									{address.fullName}
+								</Text>
+								<Text style={styles.addressText}>
+									{address.address}
+								</Text>
 								<Text style={styles.addressText}>
 									{address.city}, {address.state}
 								</Text>
-								<Text style={styles.addressText}>{address.postalCode}</Text>
-								<Text style={styles.phone}>{address.phoneNumber}</Text>
+								<Text style={styles.addressText}>
+									{address.postalCode}
+								</Text>
+								<Text style={styles.phone}>
+									{address.phoneNumber}
+								</Text>
 							</TouchableOpacity>
 						))}
 					</ScrollView>
@@ -215,9 +310,9 @@ export default function CheckoutScreen() {
 				<Text style={styles.sectionTitle}>Order Summary</Text>
 				{cart.map((item: CartItem) => (
 					<View key={item._id} style={styles.orderItem}>
-						<Image 
-							source={{ uri: item.image }} 
-							style={styles.productImage} 
+						<Image
+							source={{ uri: item.image }}
+							style={styles.productImage}
 						/>
 						<View style={styles.productInfo}>
 							<Text style={styles.itemName}>{item.name}</Text>
@@ -247,7 +342,9 @@ export default function CheckoutScreen() {
 				</View>
 				<View style={styles.priceRow}>
 					<Text>Discount</Text>
-					<Text style={styles.discountText}>- ₹{calculateDiscount()}</Text>
+					<Text style={styles.discountText}>
+						- ₹{calculateDiscount()}
+					</Text>
 				</View>
 				<View style={styles.priceRow}>
 					<Text>Delivery Fee</Text>
@@ -262,7 +359,8 @@ export default function CheckoutScreen() {
 			<TouchableOpacity
 				style={[
 					styles.placeOrderButton,
-					(!selectedAddress || cart.length === 0) && styles.disabledButton
+					(!selectedAddress || cart.length === 0) &&
+						styles.disabledButton,
 				]}
 				onPress={handlePlaceOrder}
 				disabled={!selectedAddress || cart.length === 0}

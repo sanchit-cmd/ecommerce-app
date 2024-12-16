@@ -51,20 +51,20 @@ interface ProductItem {
 
 // Sample data for the carousel
 const carouselData: CarouselItem[] = [
-	{ 
-		id: '1', 
+	{
+		id: '1',
 		image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8',
-		title: 'Summer Collection'
+		title: 'Summer Collection',
 	},
-	{ 
-		id: '2', 
+	{
+		id: '2',
 		image: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc',
-		title: 'New Arrivals'
+		title: 'New Arrivals',
 	},
-	{ 
-		id: '3', 
+	{
+		id: '3',
 		image: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04',
-		title: 'Special Offers'
+		title: 'Special Offers',
 	},
 ];
 
@@ -84,8 +84,7 @@ export default function HomeScreen() {
 		loadCategories();
 	}, []);
 
-
-// new color #c8fc8c -------------------------------------------------
+	// new color #c8fc8c -------------------------------------------------
 
 	// Auto-scroll effect
 	useEffect(() => {
@@ -94,13 +93,13 @@ export default function HomeScreen() {
 				setCurrentIndex(currentIndex + 1);
 				flatListRef.current?.scrollToIndex({
 					index: currentIndex + 1,
-					animated: true
+					animated: true,
 				});
 			} else {
 				setCurrentIndex(0);
 				flatListRef.current?.scrollToIndex({
 					index: 0,
-					animated: true
+					animated: true,
 				});
 			}
 		}, 3000); // Change slide every 3 seconds
@@ -146,7 +145,7 @@ export default function HomeScreen() {
 		if (searchQuery.trim()) {
 			router.push({
 				pathname: '/search',
-				params: { query: searchQuery.trim() }
+				params: { query: searchQuery.trim() },
 			});
 		}
 	};
@@ -167,45 +166,61 @@ export default function HomeScreen() {
 		>
 			<View style={styles.categoryIcon}>
 				{item.image ? (
-					<Image 
-						source={{ uri: item.image }} 
+					<Image
+						source={{ uri: item.image }}
 						style={styles.categoryImage}
-						resizeMode="cover"
+						resizeMode='cover'
 					/>
 				) : (
-					<Ionicons name="grid-outline" size={24} color={Colors.light.tint} />
+					<Ionicons
+						name='grid-outline'
+						size={24}
+						color={Colors.light.tint}
+					/>
 				)}
 			</View>
-			<Text style={styles.categoryName} numberOfLines={1}>{item.name}</Text>
+			<Text style={styles.categoryName} numberOfLines={1}>
+				{item.name}
+			</Text>
 		</TouchableOpacity>
 	);
 
 	const renderProduct = ({ item }: { item: ProductItem }) => {
 		// Get the first image from images array or use the image field
-		const productImage = Array.isArray(item.images) ? item.images[0] : item.image;
-		
+		const productImage = Array.isArray(item.images)
+			? item.images[0]
+			: item.image;
+
 		return (
 			<TouchableOpacity
 				style={styles.productCard}
 				onPress={() => router.push(`/product/${item._id}`)}
 			>
 				<View style={styles.imageContainer}>
-					<Image 
-						source={{ uri: productImage }} 
+					<Image
+						source={{ uri: productImage }}
 						style={styles.productImage}
-						resizeMode="cover"
+						resizeMode='cover'
 					/>
 				</View>
 				<View style={styles.productInfo}>
-					<Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
+					<Text style={styles.productName} numberOfLines={1}>
+						{item.name}
+					</Text>
 					<View style={styles.priceContainer}>
 						{item.discountPrice ? (
 							<>
-								<Text style={styles.originalPrice}>₹{item.price.toFixed(2)}</Text>
-								<Text style={styles.productPrice}>₹{item.discountPrice.toFixed(2)}</Text>
+								<Text style={styles.originalPrice}>
+									₹{item.price.toFixed(2)}
+								</Text>
+								<Text style={styles.productPrice}>
+									₹{item.discountPrice.toFixed(2)}
+								</Text>
 							</>
 						) : (
-							<Text style={styles.productPrice}>₹{item.price.toFixed(2)}</Text>
+							<Text style={styles.productPrice}>
+								₹{item.price.toFixed(2)}
+							</Text>
 						)}
 					</View>
 				</View>
@@ -215,28 +230,28 @@ export default function HomeScreen() {
 
 	return (
 		<SafeAreaView style={styles.container}>
-			<StatusBar barStyle="dark-content" />
-			
+			<StatusBar barStyle='dark-content' />
+
 			{/* Header */}
 			<View style={styles.header}>
-				<Image 
-					source={require('../../assets/images/logo.jpg')} 
+				<Image
+					source={require('../../assets/images/logo.jpg')}
 					style={styles.headerLogo}
-					resizeMode="contain"
+					resizeMode='contain'
 				/>
 			</View>
 
 			<ScrollView showsVerticalScrollIndicator={false}>
 				{/* Search Bar */}
 				<View style={styles.searchContainer}>
-					<Ionicons name="search" size={20} color="#666" />
+					<Ionicons name='search' size={20} color='#666' />
 					<TextInput
 						style={styles.searchInput}
-						placeholder="Search products..."
+						placeholder='Search products...'
 						value={searchQuery}
 						onChangeText={setSearchQuery}
 						onSubmitEditing={handleSearch}
-						returnKeyType="search"
+						returnKeyType='search'
 					/>
 				</View>
 
@@ -264,7 +279,12 @@ export default function HomeScreen() {
 								key={index}
 								style={[
 									styles.dot,
-									{ backgroundColor: index === currentIndex ? Colors.light.tint : '#ccc' }
+									{
+										backgroundColor:
+											index === currentIndex
+												? Colors.light.tint
+												: '#ccc',
+									},
 								]}
 							/>
 						))}
@@ -276,7 +296,9 @@ export default function HomeScreen() {
 					<>
 						<View style={styles.sectionHeader}>
 							<Text style={styles.sectionTitle}>Categories</Text>
-							<TouchableOpacity onPress={() => router.push('/categories')}>
+							<TouchableOpacity
+								onPress={() => router.push('/categories')}
+							>
 								<Text style={styles.seeAll}>See All</Text>
 							</TouchableOpacity>
 						</View>
@@ -290,13 +312,17 @@ export default function HomeScreen() {
 								<TouchableOpacity
 									key={category._id}
 									style={styles.categoryCard}
-									onPress={() => router.push(`/category/${category._id}`)}
+									onPress={() =>
+										router.push(`/category/${category._id}`)
+									}
 								>
 									<Image
 										source={{ uri: category.image }}
 										style={styles.categoryImage}
 									/>
-									<Text style={styles.categoryName}>{category.name}</Text>
+									<Text style={styles.categoryName}>
+										{category.name}
+									</Text>
 								</TouchableOpacity>
 							))}
 						</ScrollView>
@@ -306,13 +332,21 @@ export default function HomeScreen() {
 				{/* Featured Products */}
 				<View style={styles.productsSection}>
 					<View style={styles.sectionHeader}>
-						<Text style={styles.sectionTitle}>Featured Products</Text>
-						<TouchableOpacity onPress={() => router.push('/featured')}>
+						<Text style={styles.sectionTitle}>
+							Featured Products
+						</Text>
+						<TouchableOpacity
+							onPress={() => router.push('/featured')}
+						>
 							<Text style={styles.seeAll}>See All</Text>
 						</TouchableOpacity>
 					</View>
 					{loading ? (
-						<ActivityIndicator size="large" color={Colors.light.tint} style={styles.loader} />
+						<ActivityIndicator
+							size='large'
+							color={Colors.light.tint}
+							style={styles.loader}
+						/>
 					) : (
 						<FlatList
 							data={featuredProducts}
@@ -441,9 +475,9 @@ const styles = StyleSheet.create({
 		backgroundColor: '#fff',
 		borderRadius: 12,
 		shadowColor: '#000',
-		shadowOffset: { 
-			width: 0, 
-			height: 2 
+		shadowOffset: {
+			width: 0,
+			height: 2,
 		},
 		shadowOpacity: 0.2,
 		shadowRadius: 6,

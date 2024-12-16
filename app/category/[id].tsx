@@ -52,7 +52,9 @@ export default function CategoryProducts() {
 	const loadCategory = async () => {
 		try {
 			setCategoryLoading(true);
-			const response = await categoryService.getCategoryBySlug(id as string);
+			const response = await categoryService.getCategoryBySlug(
+				id as string
+			);
 			setCategory(response.data);
 		} catch (error) {
 			console.error('Error loading category:', error);
@@ -66,7 +68,9 @@ export default function CategoryProducts() {
 	const loadProducts = async () => {
 		try {
 			setLoading(true);
-			const response = await productService.getProductsByCategory(id as string);
+			const response = await productService.getProductsByCategory(
+				id as string
+			);
 			setProducts(response.products);
 		} catch (error) {
 			console.error('Error loading products:', error);
@@ -82,22 +86,30 @@ export default function CategoryProducts() {
 			onPress={() => router.push(`/product/${item._id}`)}
 		>
 			<View style={styles.imageContainer}>
-				<Image 
-					source={{ uri: item.image }} 
+				<Image
+					source={{ uri: item.image }}
 					style={styles.productImage}
-					resizeMode="cover"
+					resizeMode='cover'
 				/>
 			</View>
 			<View style={styles.productInfo}>
-				<Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
+				<Text style={styles.productName} numberOfLines={1}>
+					{item.name}
+				</Text>
 				<View style={styles.priceContainer}>
 					{item.discountPrice ? (
 						<>
-							<Text style={styles.originalPrice}>₹{item.price.toFixed(2)}</Text>
-							<Text style={styles.productPrice}>₹{item.discountPrice.toFixed(2)}</Text>
+							<Text style={styles.originalPrice}>
+								₹{item.price.toFixed(2)}
+							</Text>
+							<Text style={styles.productPrice}>
+								₹{item.discountPrice.toFixed(2)}
+							</Text>
 						</>
 					) : (
-						<Text style={styles.productPrice}>₹{item.price.toFixed(2)}</Text>
+						<Text style={styles.productPrice}>
+							₹{item.price.toFixed(2)}
+						</Text>
 					)}
 				</View>
 			</View>
@@ -107,7 +119,7 @@ export default function CategoryProducts() {
 	if (categoryLoading) {
 		return (
 			<View style={styles.loadingContainer}>
-				<ActivityIndicator size="large" color={Colors.light.tint} />
+				<ActivityIndicator size='large' color={Colors.light.tint} />
 			</View>
 		);
 	}
@@ -125,32 +137,40 @@ export default function CategoryProducts() {
 			{/* Category Header */}
 			<View style={styles.header}>
 				{category.image && (
-					<Image 
+					<Image
 						source={{ uri: category.image }}
 						style={styles.categoryImage}
-						resizeMode="cover"
+						resizeMode='cover'
 					/>
 				)}
 				<View style={styles.headerContent}>
 					<Text style={styles.categoryName}>{category.name}</Text>
 					{category.description && (
-						<Text style={styles.categoryDescription}>{category.description}</Text>
+						<Text style={styles.categoryDescription}>
+							{category.description}
+						</Text>
 					)}
 				</View>
 			</View>
 
 			{/* Products List */}
 			{loading ? (
-				<ActivityIndicator size="large" color={Colors.light.tint} style={styles.loader} />
+				<ActivityIndicator
+					size='large'
+					color={Colors.light.tint}
+					style={styles.loader}
+				/>
 			) : (
 				<FlatList
 					data={products}
 					renderItem={renderProduct}
-					keyExtractor={(item) => item._id}
+					keyExtractor={item => item._id}
 					numColumns={2}
 					contentContainerStyle={styles.productsGrid}
 					ListEmptyComponent={
-						<Text style={styles.noProductsText}>No products found in this category</Text>
+						<Text style={styles.noProductsText}>
+							No products found in this category
+						</Text>
 					}
 				/>
 			)}
@@ -217,7 +237,7 @@ const styles = StyleSheet.create({
 		shadowOffset: { width: 0, height: 2 },
 		shadowOpacity: 0.1,
 		shadowRadius: 4,
-		
+
 		elevation: 3,
 	},
 	imageContainer: {
