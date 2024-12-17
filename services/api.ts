@@ -15,13 +15,34 @@ const getAuthHeader = async () => {
 export const categoryService = {
   // Get all active categories
   getAllCategories: async () => {
-    const response = await axios.get(`${API_URL}/categories`);
-    return response.data;
+    try {
+      console.log('Making request to:', `${API_URL}/categories`);
+      const response = await axios.get(`${API_URL}/categories`);
+      console.log('Categories API response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error in getAllCategories:', error);
+      throw error;
+    }
   },
 
   // Get category by slug
   getCategoryBySlug: async (slug: string) => {
     const response = await axios.get(`${API_URL}/categories/${slug}`);
+    return response.data;
+  },
+
+  // Get subcategories for a category
+  getSubcategories: async (slug: string) => {
+    const response = await axios.get(`${API_URL}/categories/${slug}/subcategories`);
+    return response.data;
+  },
+
+  // Get products by subcategory
+  getProductsBySubcategory: async (categorySlug: string, subcategorySlug: string, page = 1, limit = 10) => {
+    const response = await axios.get(
+      `${API_URL}/products/category/${subcategorySlug}?page=${page}&limit=${limit}`
+    );
     return response.data;
   },
 };

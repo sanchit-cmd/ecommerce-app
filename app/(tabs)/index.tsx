@@ -36,6 +36,7 @@ interface CategoryItem {
 	image?: string;
 	slug: string;
 	isActive: boolean;
+	hasSubcategories?: boolean;
 }
 
 interface ProductItem {
@@ -131,8 +132,10 @@ export default function HomeScreen() {
 	const loadCategories = async () => {
 		try {
 			setCategoriesLoading(true);
+			console.log('Fetching categories...');
 			const response = await categoryService.getAllCategories();
-			setCategories(response.data);
+			console.log('Categories response:', response);
+			setCategories(response.data || []);
 		} catch (error) {
 			console.error('Error loading categories:', error);
 			Alert.alert('Error', 'Failed to load categories');
@@ -292,41 +295,39 @@ export default function HomeScreen() {
 				</View>
 
 				{/* Categories */}
-				{categories.length > 0 && (
-					<>
-						<View style={styles.sectionHeader}>
-							<Text style={styles.sectionTitle}>Categories</Text>
-							<TouchableOpacity
-								onPress={() => router.push('/categories')}
-							>
-								<Text style={styles.seeAll}>See All</Text>
-							</TouchableOpacity>
-						</View>
+				<View style={styles.sectionHeader}>
+					<Text style={styles.sectionTitle}>Categories</Text>
+				</View>
 
-						<ScrollView
-							horizontal
-							showsHorizontalScrollIndicator={false}
-							contentContainerStyle={styles.categoriesContainer}
-						>
-							{categories.map(category => (
-								<TouchableOpacity
-									key={category._id}
-									style={styles.categoryCard}
-									onPress={() =>
-										router.push(`/category/${category._id}`)
-									}
-								>
+				{categoriesLoading ? (
+					<ActivityIndicator size="large" color={Colors.light.tint} style={styles.loader} />
+				) : categories.length > 0 ? (
+					<ScrollView
+						horizontal
+						showsHorizontalScrollIndicator={false}
+						contentContainerStyle={styles.categoriesContainer}
+					>
+						{categories.map(category => (
+							<TouchableOpacity
+								key={category._id}
+								style={styles.categoryCard}
+								onPress={() => router.push(`/category/${category.slug}`)}
+							>
+								<View style={styles.categoryImageContainer}>
 									<Image
 										source={{ uri: category.image }}
 										style={styles.categoryImage}
+										resizeMode="cover"
 									/>
-									<Text style={styles.categoryName}>
-										{category.name}
-									</Text>
-								</TouchableOpacity>
-							))}
-						</ScrollView>
-					</>
+								</View>
+								<Text style={styles.categoryName} numberOfLines={2}>
+									{category.name}
+								</Text>
+							</TouchableOpacity>
+						))}
+					</ScrollView>
+				) : (
+					<Text style={styles.emptyText}>No categories available</Text>
 				)}
 
 				{/* Featured Products */}
@@ -545,11 +546,45 @@ const styles = StyleSheet.create({
 		marginHorizontal: 4,
 	},
 	categoriesContainer: {
-		paddingHorizontal: 12,
+		paddingHorizontal: 16,
+		paddingVertical: 12,
 	},
 	categoryCard: {
 		alignItems: 'center',
-		marginHorizontal: 4,
+		marginRight: 16,
 		width: 80,
+		backgroundColor: '#fff',
+		borderRadius: 12,
+		padding: 8,
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.1,
+		shadowRadius: 4,
+		elevation: 3,
+	},
+	categoryImageContainer: {
+		width: 64,
+		height: 64,
+		borderRadius: 32,
+		backgroundColor: '#f5f5f5',
+		overflow: 'hidden',
+		marginBottom: 8,
+	},
+	categoryImage: {
+		width: '100%',
+		height: '100%',
+	},
+	categoryName: {
+		fontSize: 12,
+		color: Colors.light.text,
+		textAlign: 'center',
+		fontWeight: '500',
+		maxWidth: 80,
+	},
+	emptyText: {
+		fontSize: 16,
+		color: '#999',
+		textAlign: 'center',
+		marginVertical: 16,
 	},
 });

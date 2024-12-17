@@ -14,7 +14,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
 		if (!loading) {
 			const inAuthGroup = segments[0] === 'auth';
-			
+
 			if (!user && !inAuthGroup) {
 				// Redirect to login if user is not authenticated and not in auth group
 				router.replace('/auth/login');

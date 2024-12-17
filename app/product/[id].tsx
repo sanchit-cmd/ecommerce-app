@@ -84,9 +84,7 @@ export default function ProductScreen() {
     );
   }
 
-  const finalPrice = selectedVariant 
-    ? product.price + selectedVariant.additionalPrice - product.discountPrice
-    : product.price - product.discountPrice;
+  const finalPrice = product.discountPrice || product.price;
   const currentStock = selectedVariant ? selectedVariant.stock : product.stock;
 
   const handleAddToCart = async () => {
@@ -108,11 +106,17 @@ export default function ProductScreen() {
     }
 
     try {
-      await addToCart({
-        ...product,
-        variant: selectedVariant,
-        quantity,
-      }, quantity);
+      console.log('Adding product to cart:', {
+        productId: product._id,
+        quantity: quantity
+      });
+
+      const cartItem = {
+        productId: product._id,
+        quantity: quantity
+      };
+
+      await addToCart(cartItem, quantity);
       Alert.alert('Success', 'Item added to cart');
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -165,7 +169,7 @@ export default function ProductScreen() {
         {/* Price Section */}
         <View style={styles.priceContainer}>
           <Text style={styles.finalPrice}>₹{finalPrice.toFixed(2)}</Text>
-          {product.discountPrice > 0 && (
+          {product.discountPrice && (
             <Text style={styles.originalPrice}>₹{product.price.toFixed(2)}</Text>
           )}
         </View>

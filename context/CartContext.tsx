@@ -90,22 +90,31 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 		try {
 			setLoading(true);
 			const authHeader = await getAuthHeader();
+			console.log('Adding to cart:', {
+				productId: product.productId,
+				quantity,
+			});
+
 			const response = await axios.post(
 				`${API_URL}/api/carts/add`,
 				{
-					productId: product._id,
-					quantity,
+					productId: product.productId,
+					quantity: quantity,
 				},
 				authHeader
 			);
 
 			if (response.data.success) {
+				console.log('Add to cart response:', response.data);
 				await fetchCartItems();
 			} else {
 				Alert.alert('Error', response.data.message);
 			}
 		} catch (error: any) {
-			console.error('Error adding to cart:', error);
+			console.error(
+				'Error adding to cart:',
+				error.response?.data || error
+			);
 			Alert.alert(
 				'Error',
 				error.response?.data?.message || 'Failed to add item to cart'
