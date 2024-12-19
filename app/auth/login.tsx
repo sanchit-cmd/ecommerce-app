@@ -14,12 +14,14 @@ import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { Colors } from '../../constants/Colors';
+import { useGoogleAuth } from '../../utils/googleAuth';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const { login, loading } = useAuth();
+  const { login, loginWithGoogle, loading } = useAuth();
+  const { request, response, promptAsync } = useGoogleAuth();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -31,6 +33,23 @@ export default function LoginScreen() {
     if (success) {
       // The AuthContext will handle setting the user and token
       // The app's navigation will automatically update based on the auth state
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await promptAsync();
+      
+      if (result?.type === 'success' && result.params?.id_token) {
+        const success = await loginWithGoogle(result.params.id_token);
+        if (success) {
+          // The AuthContext will handle setting the user and token
+          // The app's navigation will automatically update based on the auth state
+        }
+      }
+    } catch (error) {
+      console.error('Google Sign In Error:', error);
+      Alert.alert('Error', 'Failed to sign in with Google');
     }
   };
 
@@ -87,6 +106,21 @@ export default function LoginScreen() {
           ) : (
             <Text style={styles.loginButtonText}>Login</Text>
           )}
+        </TouchableOpacity>
+
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>OR</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <TouchableOpacity
+          style={[styles.googleButton, loading && styles.loginButtonDisabled]}
+          onPress={handleGoogleLogin}
+          disabled={loading || !request}
+        >
+          <Ionicons name="logo-google" size={20} color="#fff" style={styles.googleIcon} />
+          <Text style={styles.googleButtonText}>Continue with Google</Text>
         </TouchableOpacity>
 
         <View style={styles.footer}>
@@ -155,6 +189,38 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   loginButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#ddd',
+  },
+  dividerText: {
+    color: '#666',
+    paddingHorizontal: 16,
+    fontSize: 14,
+  },
+  googleButton: {
+    backgroundColor: '#4285F4',
+    height: 56,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  googleIcon: {
+    marginRight: 12,
+  },
+  googleButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',

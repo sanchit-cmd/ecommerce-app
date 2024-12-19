@@ -24,6 +24,7 @@ interface AuthContextType {
 	loading: boolean;
 	register: (name: string, email: string, password: string) => Promise<boolean>;
 	login: (email: string, password: string) => Promise<boolean>;
+	loginWithGoogle: (idToken: string) => Promise<boolean>;
 	logout: () => Promise<void>;
 	updatePassword: (oldPassword: string, newPassword: string) => Promise<boolean>;
 }
@@ -116,14 +117,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 		}
 	};
 
+	const loginWithGoogle = async (idToken: string) => {
+		setLoading(true);
+		try {
+			const response = await axios.post(`${API_URL}/api/auth/google/token`, {
+				idToken,
+			});
+
+			await AsyncStorage.setItem('token', response.data.token);
+			setUser(response.data.user);
+			return true;
+		} catch (error: any) {
+			console.error('Google Login Error:', error);
+			Alert.alert(
+				'Error',
+				error.response?.data?.message || 'Failed to login with Google'
+			);
+			return false;
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	const logout = async () => {
 		setLoading(true);
 		try {
-			// First clear the token
 			await AsyncStorage.removeItem('token');
-			// Then clear the user state
 			setUser(null);
-			// Finally navigate to login
 			router.replace('/auth/login');
 		} catch (error) {
 			console.error('Logout Error:', error);
@@ -164,7 +184,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	};
 
 	return (
-		<AuthContext.Provider value={{ user, loading, register, login, logout, updatePassword }}>
+		<AuthContext.Provider value={{ user, loading, register, login, loginWithGoogle, logout, updatePassword }}>
 			{children}
 		</AuthContext.Provider>
 	);
