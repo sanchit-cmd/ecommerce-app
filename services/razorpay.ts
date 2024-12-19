@@ -28,7 +28,7 @@ export const razorpayService = {
             const response = await axios.post(
                 `${API_URL}/payments/create-order`,
                 {
-                    totalPrice: Math.round(totalPrice * 100), // Convert to paise
+                    totalPrice: Math.round(totalPrice), // Convert to paise
                     products,
                     addressId
                 },

@@ -151,9 +151,9 @@ export default function CheckoutScreen() {
 				description: 'Payment for your order',
 				image: require('../assets/images/logo.jpg'),
 				currency: 'INR',
-				key: 'rzp_test_RMmP5kRFvbWB49',
+				key: 'rzp_live_fK3Jqtu1JBnJbg',
 				amount: orderResponse.amount,
-				name: 'Shopify',
+				name: 'savermart',
 				order_id: orderResponse.razorpayOrderId,
 				prefill: {
 					email: user?.email || '',
