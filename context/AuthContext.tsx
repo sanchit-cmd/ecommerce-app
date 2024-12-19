@@ -5,7 +5,8 @@ import { Alert } from 'react-native';
 import { router } from 'expo-router';
 
 // Create a base URL that you can easily change
-const API_URL = 'http://10.0.2.2:5000'; // for Android emulator
+const API_URL = 'https://savermart.in/';
+// const API_URL = 'http://10.0.2.2:5000'; // for Android emulator
 // const API_URL = 'http://localhost:5000'; // for iOS simulator
 // const API_URL = 'http://YOUR_LOCAL_IP:5000'; // for physical device (e.g., 192.168.1.5)
 
