@@ -18,13 +18,12 @@
 			"bundleIdentifier": "com.ecommerce.app"
 		},
 		"android": {
-			"usesCleartextTraffic": true,
 			"adaptiveIcon": {
 				"foregroundImage": "./assets/images/adaptive-icon.png",
 				"backgroundColor": "#ffffff"
 			},
 			"package": "com.ecommerce.app",
-			"permissions": ["INTERNET"]
+			"permissions": ["INTERNET", "ACCESS_NETWORK_STATE"]
 		},
 		"web": {
 			"bundler": "metro",
@@ -37,7 +36,16 @@
 				"expo-build-properties",
 				{
 					"android": {
-						"usesCleartextTraffic": true
+						"usesCleartextTraffic": true,
+						"networkSecurityConfig": {
+							"domain-config": {
+								"cleartextTrafficPermitted": true,
+								"domain": {
+									"includeSubdomains": true,
+									"value": "savermart.in"
+								}
+							}
+						}
 					}
 				}
 			]
