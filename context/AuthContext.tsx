@@ -5,7 +5,9 @@ import { Alert } from 'react-native';
 import { router } from 'expo-router';
 
 // Create a base URL that you can easily change
-const API_URL = 'https://savermart.in';
+
+const API_URL = 'https://145.223.19.22';
+// const API_URL = 'https://savermart.in';
 
 // Logging utility
 const logger = {

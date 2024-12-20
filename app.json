@@ -29,7 +29,6 @@
 				"ACCESS_WIFI_STATE"
 			],
 			"versionCode": 1,
-			"useNextNotificationsApi": true,
 			"softwareKeyboardLayoutMode": "pan"
 		},
 		"web": {
@@ -54,8 +53,8 @@
 							}
 						},
 						"minSdkVersion": 21,
-						"compileSdkVersion": 31,
-						"targetSdkVersion": 31,
+						"compileSdkVersion": 34,
+						"targetSdkVersion": 34,
 						"enableProguardInReleaseBuilds": true,
 						"extraProguardRules": "-keep class com.yourpackage.** { *; }",
 						"packagingOptions": {

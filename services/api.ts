@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const API_URL = 'https://savermart.in';
+export const API_URL = 'https://145.223.19.22';
 
 const getAuthHeader = async () => {
   const token = await AsyncStorage.getItem('token');

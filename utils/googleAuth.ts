@@ -5,9 +5,9 @@ WebBrowser.maybeCompleteAuthSession();
 
 export const useGoogleAuth = () => {
   const [request, response, promptAsync] = useAuthRequest({
-    androidClientId: process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID,
-    iosClientId: process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
-    clientId: process.env.EXPO_PUBLIC_EXPO_CLIENT_ID,
+    androidClientId:"903303983661-3eveeubne6c2vmqe8ip6mea8qu6ugbsr.apps.googleusercontent.com",
+    iosClientId: "903303983661-3eveeubne6c2vmqe8ip6mea8qu6ugbsr.apps.googleusercontent.com",
+    clientId: "903303983661-3eveeubne6c2vmqe8ip6mea8qu6ugbsr.apps.googleusercontent.com",
   });
 
   return { request, response, promptAsync };

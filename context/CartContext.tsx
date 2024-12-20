@@ -4,7 +4,7 @@ import { Alert } from 'react-native';
 import { useAuth } from './AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'https://savermart.in';
+const API_URL = 'https://145.223.19.22';
 // const API_URL = 'http://10.0.2.2:5000';
 
 interface CartItem {
