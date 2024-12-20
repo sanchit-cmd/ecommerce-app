@@ -27,7 +27,10 @@
 				"INTERNET",
 				"ACCESS_NETWORK_STATE",
 				"ACCESS_WIFI_STATE"
-			]
+			],
+			"versionCode": 1,
+			"useNextNotificationsApi": true,
+			"softwareKeyboardLayoutMode": "pan"
 		},
 		"web": {
 			"bundler": "metro",
@@ -46,9 +49,22 @@
 								"cleartextTrafficPermitted": true,
 								"domain": {
 									"includeSubdomains": true,
-									"value": "https://savermart.in"
+									"value": "savermart.in"
 								}
 							}
+						},
+						"minSdkVersion": 21,
+						"compileSdkVersion": 31,
+						"targetSdkVersion": 31,
+						"enableProguardInReleaseBuilds": true,
+						"extraProguardRules": "-keep class com.yourpackage.** { *; }",
+						"packagingOptions": {
+							"pickFirst": [
+								"lib/x86/libc++_shared.so",
+								"lib/x86_64/libjsc.so",
+								"lib/arm64-v8a/libc++_shared.so",
+								"lib/arm64-v8a/libjsc.so"
+							]
 						}
 					}
 				}
