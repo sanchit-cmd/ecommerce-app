@@ -73,7 +73,7 @@ export default function CheckoutScreen() {
 			if (!authHeader) return;
 
 			const response = await axios.get(
-				`${API_URL}/addresses`,
+				`${API_URL}/api/addresses`,
 				authHeader
 			);
 

@@ -62,7 +62,7 @@ const OrdersScreen = () => {
 			const authHeader = await getAuthHeader();
 			if (!authHeader) return;
 
-			const response = await axios.get(`${API_URL}/orders`, authHeader);
+			const response = await axios.get(`${API_URL}/api/orders`, authHeader);
 			setOrders(response.data);
 		} catch (error: any) {
 			console.error('Error fetching orders:', error);

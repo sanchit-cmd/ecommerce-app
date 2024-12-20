@@ -70,7 +70,7 @@ export default function AddressScreen() {
             const authHeader = await getAuthHeader();
             if (!authHeader) return;
             
-            const response = await axios.get(`${API_URL}/addresses`, authHeader);
+            const response = await axios.get(`${API_URL}/api/addresses`, authHeader);
             
             if (response.data.success) {
                 const addressData = response.data.addresses || response.data.data || [];
@@ -99,7 +99,7 @@ export default function AddressScreen() {
 
         try {
             setVerificationLoading(true);
-            const response = await axios.post(`${API_URL}/mobile-otp/send-otp`, { phoneNumber });
+            const response = await axios.post(`${API_URL}/api/mobile-otp/send-otp`, { phoneNumber });
 
             if (response.data.success) {
                 Alert.alert('Success', 'OTP sent successfully');
@@ -120,7 +120,7 @@ export default function AddressScreen() {
 
         try {
             setVerificationLoading(true);
-            const response = await axios.post(`${API_URL}/mobile-otp/verify-otp`, { phoneNumber, otp });
+            const response = await axios.post(`${API_URL}/api/mobile-otp/verify-otp`, { phoneNumber, otp });
 
             if (response.data.success) {
                 Alert.alert('Success', 'Phone number verified successfully');
@@ -154,7 +154,7 @@ export default function AddressScreen() {
 
             if (editingAddress) {
                 const response = await axios.put(
-                    `${API_URL}/addresses/${editingAddress._id}`,
+                    `${API_URL}/api/addresses/${editingAddress._id}`,
                     formData,
                     authHeader
                 );
@@ -165,7 +165,7 @@ export default function AddressScreen() {
                 }
             } else {
                 const response = await axios.post(
-                    `${API_URL}/addresses`,
+                    `${API_URL}/api/addresses`,
                     formData,
                     authHeader
                 );
@@ -224,7 +224,7 @@ export default function AddressScreen() {
                             if (!authHeader) return;
 
                             const response = await axios.delete(
-                                `${API_URL}/addresses/${addressId}`,
+                                `${API_URL}/api/addresses/${addressId}`,
                                 authHeader
                             );
 

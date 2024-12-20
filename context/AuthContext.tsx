@@ -23,11 +23,18 @@ const getAuthHeader = async () => {
 interface AuthContextType {
 	user: any;
 	loading: boolean;
-	register: (name: string, email: string, password: string) => Promise<boolean>;
+	register: (
+		name: string,
+		email: string,
+		password: string
+	) => Promise<boolean>;
 	login: (email: string, password: string) => Promise<boolean>;
 	loginWithGoogle: (idToken: string) => Promise<boolean>;
 	logout: () => Promise<void>;
-	updatePassword: (oldPassword: string, newPassword: string) => Promise<boolean>;
+	updatePassword: (
+		oldPassword: string,
+		newPassword: string
+	) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -45,7 +52,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 			}
 
 			const authHeader = await getAuthHeader();
-			const response = await axios.get(`${API_URL}/api/auth/me`, authHeader);
+			const response = await axios.get(
+				`${API_URL}/api/auth/me`,
+				authHeader
+			);
 			setUser(response.data.user);
 		} catch (error: any) {
 			if (error.response?.status === 401) {
@@ -80,11 +90,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 			if (error.response) {
 				Alert.alert(
 					'Error',
-					error.response.data.message || 'Registration failed. Please try again.'
+					error.response.data.message ||
+						'Registration failed. Please try again.'
 				);
 			} else {
 				console.error('Network Error:', error);
-				Alert.alert('Error', 'Network error. Please check your connection.');
+				Alert.alert(
+					'Error',
+					'Network error. Please check your connection.'
+				);
 			}
 			return false;
 		} finally {
@@ -106,11 +120,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 			if (error.response) {
 				Alert.alert(
 					'Error',
-					error.response.data.message || 'Login failed. Please try again.'
+					error.response.data.message ||
+						'Login failed. Please try again.'
 				);
 			} else {
 				console.error('Network Error:', error);
-				Alert.alert('Error', 'Network error. Please check your connection.');
+				Alert.alert(
+					'Error',
+					'Network error. Please check your connection.'
+				);
 			}
 			return false;
 		} finally {
@@ -121,9 +139,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	const loginWithGoogle = async (idToken: string) => {
 		setLoading(true);
 		try {
-			const response = await axios.post(`${API_URL}/api/auth/google/token`, {
-				idToken,
-			});
+			const response = await axios.post(
+				`${API_URL}/api/auth/google/token`,
+				{
+					idToken,
+				}
+			);
 
 			await AsyncStorage.setItem('token', response.data.token);
 			setUser(response.data.user);
@@ -176,7 +197,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 				);
 			} else {
 				console.error('Network Error:', error);
-				Alert.alert('Error', 'Network error. Please check your connection.');
+				Alert.alert(
+					'Error',
+					'Network error. Please check your connection.'
+				);
 			}
 			return false;
 		} finally {
@@ -185,7 +209,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	};
 
 	return (
-		<AuthContext.Provider value={{ user, loading, register, login, loginWithGoogle, logout, updatePassword }}>
+		<AuthContext.Provider
+			value={{
+				user,
+				loading,
+				register,
+				login,
+				loginWithGoogle,
+				logout,
+				updatePassword,
+			}}
+		>
 			{children}
 		</AuthContext.Provider>
 	);

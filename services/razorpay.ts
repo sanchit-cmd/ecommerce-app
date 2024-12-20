@@ -26,7 +26,7 @@ export const razorpayService = {
             });
 
             const response = await axios.post(
-                `${API_URL}/payments/create-order`,
+                `${API_URL}/api/payments/create-order`,
                 {
                     totalPrice: Math.round(totalPrice), // Convert to paise
                     products,
@@ -54,7 +54,7 @@ export const razorpayService = {
             console.log('Verifying payment:', paymentData);
 
             const response = await axios.post(
-                `${API_URL}/payments/verify`,
+                `${API_URL}/api/payments/verify`,
                 paymentData,
                 authHeader
             );
@@ -71,7 +71,7 @@ export const razorpayService = {
         try {
             const authHeader = await getAuthHeader();
             const response = await axios.get(
-                `${API_URL}/payments/recent-sales`,
+                `${API_URL}/api/payments/recent-sales`,
                 authHeader
             );
             return response.data;
@@ -85,7 +85,7 @@ export const razorpayService = {
         try {
             const authHeader = await getAuthHeader();
             const response = await axios.get(
-                `${API_URL}/payments/monthly-sales`,
+                `${API_URL}/api/payments/monthly-sales`,
                 authHeader
             );
             return response.data;
