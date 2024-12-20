@@ -23,7 +23,11 @@
 				"backgroundColor": "#ffffff"
 			},
 			"package": "com.ecommerce.app",
-			"permissions": ["INTERNET", "ACCESS_NETWORK_STATE"]
+			"permissions": [
+				"INTERNET",
+				"ACCESS_NETWORK_STATE",
+				"ACCESS_WIFI_STATE"
+			]
 		},
 		"web": {
 			"bundler": "metro",
@@ -42,7 +46,7 @@
 								"cleartextTrafficPermitted": true,
 								"domain": {
 									"includeSubdomains": true,
-									"value": "savermart.in"
+									"value": "https://savermart.in"
 								}
 							}
 						}
