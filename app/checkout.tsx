@@ -19,6 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { razorpayService } from '../services/razorpay';
 import RazorpayCheckout from 'react-native-razorpay';
+import axiosInstance from '@/constants/axiosInstance';
 
 interface Address {
 	_id: string;
@@ -72,10 +73,7 @@ export default function CheckoutScreen() {
 			const authHeader = await getAuthHeader();
 			if (!authHeader) return;
 
-			const response = await axios.get(
-				`${API_URL}/api/addresses`,
-				authHeader
-			);
+			const response = await axiosInstance.get(`/addresses`, authHeader);
 
 			if (response.data.success) {
 				const addressData =

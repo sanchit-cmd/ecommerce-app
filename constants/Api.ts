@@ -1,1 +1,1 @@
-export const API_URL = 'https://145.223.19.22'; 
+export const API_URL = 'https://savermart.in'; 

@@ -15,6 +15,7 @@ import { Colors } from '../constants/Colors';
 import { API_URL } from '../constants/Api';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axiosInstance from '@/constants/axiosInstance';
 
 interface OrderItem {
 	product: {
@@ -62,7 +63,7 @@ const OrdersScreen = () => {
 			const authHeader = await getAuthHeader();
 			if (!authHeader) return;
 
-			const response = await axios.get(`${API_URL}/api/orders`, authHeader);
+			const response = await axiosInstance.get(`/orders`, authHeader);
 			setOrders(response.data);
 		} catch (error: any) {
 			console.error('Error fetching orders:', error);
@@ -108,7 +109,7 @@ const OrdersScreen = () => {
 	if (loading) {
 		return (
 			<View style={styles.loadingContainer}>
-				<ActivityIndicator size="large" color={Colors.light.tint} />
+				<ActivityIndicator size='large' color={Colors.light.tint} />
 			</View>
 		);
 	}
@@ -144,7 +145,9 @@ const OrdersScreen = () => {
 					>
 						<View style={styles.orderCard}>
 							<View style={styles.orderHeader}>
-								<Text style={styles.orderId}>Order #{item._id}</Text>
+								<Text style={styles.orderId}>
+									Order #{item._id}
+								</Text>
 								<View
 									style={[
 										styles.statusBadge,
@@ -161,7 +164,9 @@ const OrdersScreen = () => {
 								</View>
 							</View>
 
-							<Text style={styles.date}>{formatDate(item.createdAt)}</Text>
+							<Text style={styles.date}>
+								{formatDate(item.createdAt)}
+							</Text>
 
 							<View style={styles.itemsList}>
 								{item.products.map(orderItem => (
@@ -170,7 +175,9 @@ const OrdersScreen = () => {
 										style={styles.orderItem}
 									>
 										<Image
-											source={{ uri: orderItem.product.image }}
+											source={{
+												uri: orderItem.product.image,
+											}}
 											style={styles.itemImage}
 										/>
 										<View style={styles.itemDetails}>
@@ -181,7 +188,12 @@ const OrdersScreen = () => {
 												Qty: {orderItem.quantity}
 											</Text>
 											<Text style={styles.itemPrice}>
-												₹{Math.floor(orderItem.product.discountPrice || orderItem.product.price)}
+												₹
+												{Math.floor(
+													orderItem.product
+														.discountPrice ||
+														orderItem.product.price
+												)}
 											</Text>
 										</View>
 									</View>

@@ -3,9 +3,7 @@ import axios from 'axios';
 import { Alert } from 'react-native';
 import { useAuth } from './AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const API_URL = 'https://145.223.19.22';
-// const API_URL = 'http://10.0.2.2:5000';
+import axiosInstance from '@/constants/axiosInstance';
 
 interface CartItem {
 	_id: string;
@@ -54,8 +52,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 		try {
 			setLoading(true);
 			const authHeader = await getAuthHeader();
-			const response = await axios.get(
-				`${API_URL}/api/carts`,
+			const response = await axiosInstance.get(
+				`/carts`,
 				authHeader
 			);
 
@@ -96,8 +94,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 				quantity,
 			});
 
-			const response = await axios.post(
-				`${API_URL}/api/carts/add`,
+			const response = await axiosInstance.post(
+				`/carts/add`,
 				{
 					productId: product.productId,
 					quantity: quantity,
@@ -129,8 +127,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 		try {
 			setLoading(true);
 			const authHeader = await getAuthHeader();
-			const response = await axios.post(
-				`${API_URL}/api/carts/remove`,
+			const response = await axiosInstance.post(
+				`/carts/remove`,
 				{ productId },
 				authHeader
 			);
@@ -161,8 +159,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 			}
 
 			const authHeader = await getAuthHeader();
-			const response = await axios.post(
-				`${API_URL}/api/carts/update`,
+			const response = await axiosInstance.post(
+				`/carts/update`,
 				{
 					productId,
 					quantity,
@@ -190,8 +188,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 		try {
 			setLoading(true);
 			const authHeader = await getAuthHeader();
-			const response = await axios.post(
-				`${API_URL}/api/carts/clear`,
+			const response = await axiosInstance.post(
+				`/carts/clear`,
 				{},
 				authHeader
 			);
