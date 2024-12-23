@@ -6,11 +6,10 @@ import Animated, {
   withTiming,
   withSequence,
   useSharedValue,
-  withRepeat,
   Easing,
 } from 'react-native-reanimated';
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get('screen'); // Use 'screen' instead of 'window'
 
 const LoadingDots = () => {
   const [dots, setDots] = useState('');
@@ -89,7 +88,7 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     width: width,
-    height: height,
+    height: height, // Ensure the container covers the entire screen height
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',

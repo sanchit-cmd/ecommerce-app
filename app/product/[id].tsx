@@ -45,7 +45,7 @@ interface Product {
 
 const { width } = Dimensions.get('window');
 
-export default function ProductScreen() {
+const ProductScreen = () => {
   const { id } = useLocalSearchParams();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -54,6 +54,7 @@ export default function ProductScreen() {
   const router = useRouter();
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   useEffect(() => {
     loadProductDetails();
@@ -74,6 +75,34 @@ export default function ProductScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatDescription = (description: string) => {
+    return description.split('●').map((line, index) => (
+      <Text key={index} style={styles.descriptionText}>
+        {line.trim() && `\u2022 ${line.trim()}`}
+      </Text>
+    ));
+  };
+
+  const renderDescription = () => {
+    const descriptionText = product.description;
+    const words = descriptionText.split(' ');
+    const limit = 100; // Limit to 100 words
+    const shortDescription = words.slice(0, limit).join(' ');
+    const remainingDescription = words.slice(limit).join(' ');
+
+    return (
+      <View>
+        {formatDescription(shortDescription)}
+        {!showFullDescription && words.length > limit && (
+          <TouchableOpacity onPress={() => setShowFullDescription(true)}>
+            <Text style={styles.readMoreText}>Read More</Text>
+          </TouchableOpacity>
+        )}
+        {showFullDescription && formatDescription(remainingDescription)}
+      </View>
+    );
   };
 
   if (loading || !product) {
@@ -240,7 +269,9 @@ export default function ProductScreen() {
 
         {/* Description */}
         <Text style={styles.sectionTitle}>Description</Text>
-        <Text style={styles.description}>{product.description}</Text>
+        <View style={styles.descriptionContainer}>
+          {renderDescription()}
+        </View>
 
         {/* Tags */}
         {product.tags.length > 0 && (
@@ -414,6 +445,21 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     marginBottom: 16,
   },
+  descriptionContainer: {
+    marginBottom: 16,
+  },
+  descriptionText: {
+    fontSize: 16,
+    color: Colors.light.text,
+    lineHeight: 24,
+    marginBottom: 4,
+  },
+  readMoreText: {
+    color: Colors.light.tint,
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 8,
+  },
   tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -448,3 +494,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
+export default ProductScreen;

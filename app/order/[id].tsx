@@ -154,14 +154,14 @@ export default function OrderDetailScreen() {
 			<ScrollView style={styles.container}>
 				<View style={styles.header}>
 					<Text style={styles.orderId}>Order #{order._id}</Text>
-					<View
-						style={[
-							styles.statusBadge,
-							{ backgroundColor: getStatusColor(order.status) },
-						]}
-					>
-						<Text style={styles.statusText}>{order.status}</Text>
-					</View>
+				</View>
+				<View
+					style={[
+						styles.statusBadge,
+						{ backgroundColor: getStatusColor(order.status), alignSelf: 'flex-start', marginTop: 8 },
+					]}
+				>
+					<Text style={styles.statusText}>{order.status}</Text>
 				</View>
 
 				<Text style={styles.date}>{formatDate(order.createdAt)}</Text>
@@ -276,9 +276,12 @@ const styles = StyleSheet.create({
 		color: Colors.light.text,
 	},
 	statusBadge: {
-		paddingHorizontal: 12,
-		paddingVertical: 6,
-		borderRadius: 6,
+		paddingHorizontal: 8,
+		paddingVertical: 4,
+		borderRadius: 4,
+		alignSelf: 'flex-start', // Adjust the width to fit the content
+		marginTop: 10, // Add margin to prevent it from being at the extreme top left
+		marginLeft: 14,
 	},
 	statusText: {
 		color: '#fff',

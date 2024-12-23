@@ -148,20 +148,21 @@ const OrdersScreen = () => {
 								<Text style={styles.orderId}>
 									Order #{item._id}
 								</Text>
-								<View
-									style={[
-										styles.statusBadge,
-										{
-											backgroundColor: getStatusColor(
-												item.status
+							</View>
+							<View
+								style={[
+									styles.statusBadge,
+									{
+										backgroundColor: getStatusColor(
+											item.status
 											),
-										},
-									]}
-								>
-									<Text style={styles.statusText}>
-										{item.status}
-									</Text>
-								</View>
+										alignSelf: 'flex-start' // Adjust the width to fit the content
+									},
+								]}
+							>
+								<Text style={styles.statusText}>
+									{item.status}
+								</Text>
 							</View>
 
 							<Text style={styles.date}>
@@ -276,6 +277,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 8,
 		paddingVertical: 4,
 		borderRadius: 4,
+		alignSelf: 'flex-start', // Adjust the width to fit the content
 	},
 	statusText: {
 		color: '#fff',

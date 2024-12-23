@@ -4,13 +4,13 @@
 		"slug": "ecommerce",
 		"version": "1.0.0",
 		"orientation": "portrait",
-		"icon": "./assets/images/icon.png",
-		"scheme": "myapp",
+		"icon": "./assets/images/icon.jpg",
+		"scheme": "com.ecommerce.app",
 		"userInterfaceStyle": "automatic",
 		"splash": {
-			"image": "./assets/images/splash.png",
+			"image": "./assets/images/icon.jpg",
 			"resizeMode": "contain",
-			"backgroundColor": "#ffffff"
+			"backgroundColor": "#386c2c"
 		},
 		"assetBundlePatterns": ["**/*"],
 		"ios": {
@@ -19,10 +19,26 @@
 		},
 		"android": {
 			"adaptiveIcon": {
-				"foregroundImage": "./assets/images/adaptive-icon.png",
-				"backgroundColor": "#ffffff"
+				"foregroundImage": "./assets/images/icon.jpg",
+				"backgroundColor": "#386c2c"
 			},
 			"package": "com.ecommerce.app",
+			"intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "com.ecommerce.app",
+              "host": "*"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ],
 			"permissions": [
 				"INTERNET",
 				"ACCESS_NETWORK_STATE",
@@ -32,7 +48,7 @@
 		"web": {
 			"bundler": "metro",
 			"output": "static",
-			"favicon": "./assets/images/favicon.png"
+			"favicon": "./assets/images/icon.jpg"
 		},
 		"plugins": [
 			"expo-router",

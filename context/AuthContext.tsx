@@ -4,8 +4,9 @@ import axios from 'axios';
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
 import axiosInstance from '@/constants/axiosInstance';
-
-// Create a base URL that you can easily change
+import { useGoogleAuth } from '../utils/googleAuth'; // Correct import for googleAuth
+import { getRandomBytesAsync } from 'expo-random';
+import * as Crypto from 'expo-crypto';
 
 // Logging utility
 const logger = {
@@ -46,7 +47,7 @@ interface AuthContextType {
 		password: string
 	) => Promise<boolean>;
 	login: (email: string, password: string) => Promise<boolean>;
-	loginWithGoogle: (idToken: string) => Promise<boolean>;
+	loginWithGoogle: () => Promise<boolean>;
 	logout: () => Promise<void>;
 	updatePassword: (
 		oldPassword: string,
@@ -59,6 +60,8 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	const [user, setUser] = useState(null);
 	const [loading, setLoading] = useState(true);
+
+	const { promptAsync, response, request } = useGoogleAuth(); // Use destructured promptAsync
 
 	const loadUser = async () => {
 		const startTime = logger.start('Loading user profile');
@@ -165,28 +168,66 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 		}
 	};
 
-	const loginWithGoogle = async (idToken: string) => {
+	const getUserInfo = async (token: any) => {
+		//absent token
+		if (!token) return;
+		//present token
+		try {
+			const response = await fetch(
+				'https://www.googleapis.com/userinfo/v2/me',
+				{
+					headers: { Authorization: `Bearer ${token}` },
+				}
+			);
+			const user = await response.json();
+			console.log(user);
+			//store user information  in Asyncstorage
+			// await AsyncStorage.setItem("user", JSON.stringify(user));
+			// setUserInfo(user);
+		} catch (error) {
+			console.error(
+				'Failed to fetch user data:'
+				// response.status,
+				// response.statusText
+			);
+		}
+	};
+
+	const loginWithGoogle = async () => {
 		const startTime = logger.start('Google login');
 		setLoading(true);
 		try {
-			const response = await axiosInstance.post(`/auth/google/token`, {
-				idToken,
-			});
+			const result = await promptAsync();
+			console.log(result);
+			console.log('OAuth Result:', JSON.stringify(result, null, 2));
 
-			await AsyncStorage.setItem('token', response.data.token);
-			setUser(response.data.user);
-			console.log('[INFO] Google login successful');
-			return true;
-		} catch (error: any) {
+			if (result?.type === 'success' && result?.params?.code) {
+				const response = await axiosInstance.post(
+					'/auth/mobile/google',
+					{
+						code: result.params.code,
+						code_verifier: request?.codeVerifier, // Add code verifier from request object
+						redirect_uri:
+							'http://localhost:8081/auth/google/callback',
+					}
+				);
+
+				console.log(response);
+
+				if (response.status === 200) {
+					await AsyncStorage.setItem('token', response.data.token);
+					setUser(response.data.user);
+					router.replace('/');
+					return true;
+				}
+			}
+			return false;
+		} catch (error) {
 			logger.error('Google login', error);
-			Alert.alert(
-				'Error',
-				error.response?.data?.message || 'Failed to login with Google'
-			);
 			return false;
 		} finally {
-			logger.end('Google login', startTime);
 			setLoading(false);
+			logger.end('Google login', startTime);
 		}
 	};
 
