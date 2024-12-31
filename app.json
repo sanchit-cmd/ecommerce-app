@@ -5,7 +5,7 @@
 		"version": "1.0.0",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.jpg",
-		"scheme": "com.ecommerce.app",
+		"scheme": "com.savermart.app",
 		"userInterfaceStyle": "automatic",
 		"splash": {
 			"image": "./assets/images/icon.jpg",
@@ -15,30 +15,34 @@
 		"assetBundlePatterns": ["**/*"],
 		"ios": {
 			"supportsTablet": true,
-			"bundleIdentifier": "com.ecommerce.app"
+			"bundleIdentifier": "com.savermart.app"
 		},
 		"android": {
 			"adaptiveIcon": {
 				"foregroundImage": "./assets/images/icon.jpg",
 				"backgroundColor": "#386c2c"
 			},
-			"package": "com.ecommerce.app",
+			"package": "com.savermart.app",
 			"intentFilters": [
-        {
-          "action": "VIEW",
-          "autoVerify": true,
-          "data": [
-            {
-              "scheme": "com.ecommerce.app",
-              "host": "*"
-            }
-          ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
-        }
-      ],
+				{
+					"action": "VIEW",
+					"autoVerify": true,
+					"data": [
+						{
+							"scheme": "https",
+							"host": "savermart.in"
+						},
+						{
+							"scheme": "https",
+							"host": "*.savermart.in"
+						}
+					],
+					"category": [
+						"BROWSABLE",
+						"DEFAULT"
+					]
+				}
+			],
 			"permissions": [
 				"INTERNET",
 				"ACCESS_NETWORK_STATE",
