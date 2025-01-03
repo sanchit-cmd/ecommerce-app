@@ -154,6 +154,14 @@ export default function LoginScreen() {
 						</TouchableOpacity>
 					</Link>
 				</View>
+
+				<View style={styles.privacyPolicyContainer}>
+	<Link href='https://savermart.in/privacy' asChild>
+		<TouchableOpacity>
+			<Text style={styles.privacyPolicyLink}>Privacy Policy</Text>
+		</TouchableOpacity>
+	</Link>
+</View>
 			</View>
 		</KeyboardAvoidingView>
 	);
@@ -261,5 +269,14 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		color: Colors.light.tint,
 		fontWeight: '600',
+	},
+	privacyPolicyContainer: {
+		marginTop: 16,
+		alignItems: 'center',
+	},
+	privacyPolicyLink: {
+		fontSize: 14,
+		color: Colors.light.tint,
+		textDecorationLine: 'underline',
 	},
 });
